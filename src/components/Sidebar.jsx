@@ -1,4 +1,5 @@
 import React from "react";
+import { HomeIcon, HashtagIcon, BellIcon, EnvelopeIcon, BookmarkIcon, UserIcon, EllipsisHorizontalCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid'
 
 export default function Sidebar() {
   const appSignOut = () => {};
