@@ -1,25 +1,43 @@
 import { GifIcon, ListBulletIcon, MapPinIcon } from "@heroicons/react/20/solid";
 import React, { useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from "../firebaseConfig";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 
 export default function TweetBox() {
   const [tweet, setTweet] = useState("");
-  const handleSubmit = (e) => {
+  const [user] = useAuthState(auth);
+  const handleSubmit = async (e) => {
     e.prevenDefault();
+    await addDoc(collection(db, "tweets"), {
+      tweet: tweet.value,
+      likes: [],
+      comments: [],
+      retweets: [],
+      user: {
+        uid: user.uid,
+        name: user.displayName,
+        photoURL: user.photoURL,
+      },
+      timestamp: serverTimestamp(),
+    });
   };
   return (
     <div className="flex space-x-2">
       <img
-        src="user.photoURL"
+        src={user.photoURL}
         alt="user-logo"
         className="w-16 h-16 border border-gray-200 rounded-full"
       />
-      <form onSubmit="handleSubmit">
+      <form onSubmit={handleSubmit}>
         <textarea
           id="about"
           name="tweet"
           rows="3"
           v-model="tweet"
+          value={tweet}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          onChange={(e) => setTweet(e.target.value)}
           placeholder="What's Happening?"
         ></textarea>
         <div className="my-3 sm:flex justify-between">
@@ -55,7 +73,7 @@ export default function TweetBox() {
           <div>
             <button
               type="submit"
-              disabled="!tweet"
+              disabled={!tweet}
               className="bg-[#1ca0f2] text-white p-3 w-full my-2 rounded-2xl"
             >
               Tweet

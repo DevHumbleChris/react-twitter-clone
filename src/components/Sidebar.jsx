@@ -1,8 +1,13 @@
 import React from "react";
 import { HomeIcon, HashtagIcon, BellIcon, EnvelopeIcon, BookmarkIcon, UserIcon, EllipsisHorizontalCircleIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/solid'
+import { signOut } from "firebase/auth";
+import { auth } from "../firebaseConfig";
 
 export default function Sidebar() {
-  const appSignOut = () => {};
+  const appSignOut = () => {
+    localStorage.setItem("authenticated", "false");
+    signOut(auth);
+  };
   return (
     <aside className="col-span-1 sm:col-span-2 border border-gray-200">
       <svg
@@ -47,7 +52,7 @@ export default function Sidebar() {
           <h1 className="text-xl hidden sm:block hover:text-[#1ca0f2]">More</h1>
         </div>
         <div
-          OnClick="appSignOut"
+          onClick={appSignOut}
           className="flex px-4 items-center space-x-2 cursor-pointer"
         >
           <ArrowRightOnRectangleIcon className="w-12 h-12 text-[#1ca0f2]" />

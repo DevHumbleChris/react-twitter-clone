@@ -1,7 +1,32 @@
-import React from "react";
+import { GoogleAuthProvider, onAuthStateChanged, signInWithRedirect } from "firebase/auth";
+import React, { useEffect } from "react";
+import { auth } from "../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const googleSignin = () => {};
+  const navigate = useNavigate();
+  const provider = new GoogleAuthProvider();
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (result) => {
+      if (result) {
+        localStorage.setItem("authenticated", "true");
+        navigate("/");
+      }
+    });
+
+    return () => {
+      unsub();
+    };
+  }, []);
+  const googleSignin = () => {
+    signInWithRedirect(auth, provider)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((err) => {
+        alert(err.message);
+      });
+  };
   return (
     <div className="relative py-16">
       <div className="container relative m-auto px-6 text-gray-500 md:px-12 xl:px-40">
@@ -23,7 +48,7 @@ export default function Login() {
               </div>
               <div className="mt-6 grid space-y-4 space-x-3">
                 <button
-                  OnClick="googleSignin"
+                  onClick={googleSignin}
                   className="group relative flex h-11 items-center px-6 before:absolute before:inset-0 before:rounded-full before:bg-white before:border before:border-gray-200 before:transition before:duration-300 hover:before:scale-105 active:duration-75 active:before:scale-95 disabled:before:bg-gray-300 disabled:before:scale-100"
                 >
                   <span className="w-full relative flex justify-center items-center gap-3 text-base font-medium text-gray-600">
