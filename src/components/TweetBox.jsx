@@ -10,7 +10,7 @@ export default function TweetBox() {
   const handleSubmit = async (e) => {
     e.prevenDefault();
     await addDoc(collection(db, "tweets"), {
-      tweet: tweet.value,
+      tweet: tweet,
       likes: [],
       comments: [],
       retweets: [],
@@ -21,6 +21,7 @@ export default function TweetBox() {
       },
       timestamp: serverTimestamp(),
     });
+    setTweet('')
   };
   return (
     <div className="flex space-x-2">
