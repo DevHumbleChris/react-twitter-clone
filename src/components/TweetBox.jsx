@@ -8,7 +8,7 @@ export default function TweetBox() {
   const [tweet, setTweet] = useState("");
   const [user] = useAuthState(auth);
   const handleSubmit = async (e) => {
-    e.prevenDefault();
+    e.preventDefault();
     await addDoc(collection(db, "tweets"), {
       tweet: tweet,
       likes: [],

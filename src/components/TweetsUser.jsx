@@ -8,17 +8,15 @@ export default function TweetsUser() {
   const [loadingTweets, setLoadingTweets] = useState(true)
 
   useEffect(() => {
-    const q = query(collection(db, "tweets"), orderBy("timestamp"));
+    const q = query(collection(db, "tweets"), orderBy("timestamp", 'desc'));
     const unsub = onSnapshot(q, (querySnapshot) => {
       let newTweets = [];
       querySnapshot.forEach((doc) => {
         newTweets.push({ ...doc.data(), id: doc.id });
       });
-      
+
       setTweets(newTweets);
-      setTimeout(() => {
-        setLoadingTweets(false)
-      }, 2000)
+      setLoadingTweets(false)
     });
 
     return () => unsub();
