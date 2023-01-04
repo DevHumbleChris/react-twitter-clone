@@ -18,6 +18,9 @@ export default function Tweet({ tweet }) {
         <div>
           <h1>{tweet.user.name}</h1>
           <p className="text-gray-600 my-2">{tweet.tweet}</p>
+          { tweet.image && <div className="my-2">
+            <img src={tweet.image} alt={tweet.id} className="object-contain" />
+          </div>}
         </div>
       </div>
       <div className="flex justify-evenly m-2">
