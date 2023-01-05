@@ -4,7 +4,10 @@ import {
   ArrowUpTrayIcon,
   ArrowsUpDownIcon,
 } from "@heroicons/react/24/outline";
-import { HeartIcon as HeartIconFilled } from "@heroicons/react/20/solid";
+import {
+  HeartIcon as HeartIconFilled,
+  ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled,
+} from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import {
   addDoc,
@@ -22,6 +25,8 @@ export default function Tweet({ tweet }) {
   const [likes, setLikes] = useState([]);
   const [liked, setLiked] = useState(false);
   const [user] = useAuthState(auth);
+  const [comments, setComments] = useState([]);
+  const [commented, setCommented] = useState(false);
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweet.id, "likes"));
@@ -37,22 +42,54 @@ export default function Tweet({ tweet }) {
   }, []);
 
   useEffect(() => {
-    console.log(likes, user.uid)
-    const isLiked = likes.filter((like) => like.id === user.uid)
-    console.log(isLiked)
+    const q = query(collection(db, "tweets", tweet.id, "comments"));
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      let newComments = [];
+      querySnapshot.forEach((doc) => {
+        newLikes.push({ ...doc.data(), id: doc.id });
+      });
+      setComments(newComments);
+    });
+
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const isLiked = likes.filter((like) => like.id === user.uid);
+    console.log(isLiked);
     if (isLiked.length > 0) {
-      setLiked(true)
+      setLiked(true);
     } else {
-      setLiked(false)
+      setLiked(false);
     }
   }, [likes]);
+
+  useEffect(() => {
+    const isCommented = likes.filter((comment) => comment.id === user.uid);
+    console.log(isCommented);
+    if (isCommented.length > 0) {
+      setCommented(true);
+    } else {
+      setCommented(false);
+    }
+  }, [comments]);
 
   const likePost = async (e) => {
     if (liked) {
       await deleteDoc(doc(db, "tweets", tweet.id, "likes", user.uid));
     } else {
-      console.log('am here')
+      console.log("am here");
       await setDoc(doc(db, "tweets", tweet.id, "likes", user.uid), {
+        id: tweet.user.uid,
+        name: tweet.user.name,
+      });
+    }
+  };
+  const commentPost = async (e) => {
+    if (commented) {
+      await deleteDoc(doc(db, "tweets", tweet.id, "comments", user.uid));
+    } else {
+      await setDoc(doc(db, "tweets", tweet.id, "comments", user.uid), {
         id: tweet.user.uid,
         name: tweet.user.name,
       });
@@ -81,7 +118,17 @@ export default function Tweet({ tweet }) {
         </div>
       </div>
       <div className="flex justify-evenly m-2">
-        <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
+        <div
+          className="flex items-center space-x-1 cursor-pointer"
+          onClick={(e) => commentPost(e)}
+        >
+          {commented ? (
+            <ChatBubbleOvalLeftIconFilled className="w-6 h-6 text-green-600" />
+          ) : (
+            <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
+          )}
+          {comments.length > 0 && <p>{comments.length}</p>}
+        </div>
         <div
           className="flex items-center space-x-1 cursor-pointer"
           onClick={(e) => likePost(e)}
