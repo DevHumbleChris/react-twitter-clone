@@ -24,7 +24,6 @@ export default function Tweet({ tweet }) {
   const [user] = useAuthState(auth);
 
   useEffect(() => {
-    console.log(tweet)
     const q = query(collection(db, "tweets", tweet.id, "likes"));
     const unsub = onSnapshot(q, (querySnapshot) => {
       let newLikes = [];
@@ -38,15 +37,22 @@ export default function Tweet({ tweet }) {
   }, []);
 
   useEffect(() => {
-    setLiked(likes.findIndex((like) => like.id === user?.uid) !== -1);
+    console.log(likes, user.uid)
+    const isLiked = likes.filter((like) => like.id === user.uid)
+    console.log(isLiked)
+    if (isLiked.length > 0) {
+      setLiked(true)
+    } else {
+      setLiked(false)
+    }
   }, [likes]);
 
   const likePost = async (e) => {
-    e.stopPropagation();
     if (liked) {
-      await deleteDoc(doc(db, "tweets", tweet.id, "likes", tweet.user.uid));
+      await deleteDoc(doc(db, "tweets", tweet.id, "likes", user.uid));
     } else {
-      await setDoc(doc(db, "tweets", tweet.id, "likes", tweet.user.uid), {
+      console.log('am here')
+      await setDoc(doc(db, "tweets", tweet.id, "likes", user.uid), {
         id: tweet.user.uid,
         name: tweet.user.name,
       });
