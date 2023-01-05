@@ -46,7 +46,7 @@ export default function Tweet({ tweet }) {
     const unsub = onSnapshot(q, (querySnapshot) => {
       let newComments = [];
       querySnapshot.forEach((doc) => {
-        newLikes.push({ ...doc.data(), id: doc.id });
+        newComments.push({ ...doc.data(), id: doc.id });
       });
       setComments(newComments);
     });
