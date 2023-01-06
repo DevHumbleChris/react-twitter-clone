@@ -2,10 +2,13 @@ import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { db } from "../firebaseConfig";
 import Tweet from "./Tweet";
+import Modal from "./Modal";
+import { useSelector } from "react-redux";
 
 export default function TweetsUser() {
   const [tweets, setTweets] = useState([]);
   const [loadingTweets, setLoadingTweets] = useState(true)
+  const isModalOpen = useSelector(state => state.modal.isModalOpen)
 
   useEffect(() => {
     const q = query(collection(db, "tweets"), orderBy("timestamp", 'desc'));
@@ -39,6 +42,7 @@ export default function TweetsUser() {
       {!loadingTweets && tweets.map((tweet) => (
         <Tweet key={tweet.id} tweet={tweet} />
       ))}
+      {isModalOpen && <Modal />}
     </div>
   );
 }

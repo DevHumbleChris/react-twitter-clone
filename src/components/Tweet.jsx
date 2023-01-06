@@ -20,6 +20,8 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useDispatch } from "react-redux";
+import { openModal } from "../store/slices/modalSlice";
 
 export default function Tweet({ tweet }) {
   const [likes, setLikes] = useState([]);
@@ -27,6 +29,7 @@ export default function Tweet({ tweet }) {
   const [user] = useAuthState(auth);
   const [comments, setComments] = useState([]);
   const [commented, setCommented] = useState(false);
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweet.id, "likes"));
@@ -56,7 +59,6 @@ export default function Tweet({ tweet }) {
 
   useEffect(() => {
     const isLiked = likes.filter((like) => like.id === user.uid);
-    console.log(isLiked);
     if (isLiked.length > 0) {
       setLiked(true);
     } else {
@@ -66,7 +68,6 @@ export default function Tweet({ tweet }) {
 
   useEffect(() => {
     const isCommented = likes.filter((comment) => comment.id === user.uid);
-    console.log(isCommented);
     if (isCommented.length > 0) {
       setCommented(true);
     } else {
@@ -86,15 +87,15 @@ export default function Tweet({ tweet }) {
     }
   };
   const commentPost = async (e) => {
-    console.log(commented)
-    if (commented) {
-      await deleteDoc(doc(db, "tweets", tweet.id, "comments", user.uid));
-    } else {
-      await setDoc(doc(db, "tweets", tweet.id, "comments", user.uid), {
-        id: tweet.user.uid,
-        name: tweet.user.name,
-      });
-    }
+    dispatch(openModal({...tweet, timestamp: tweet.timestamp.toDate()}))
+    // if (commented) {
+    //   await deleteDoc(doc(db, "tweets", tweet.id, "comments", user.uid));
+    // } else {
+    //   await setDoc(doc(db, "tweets", tweet.id, "comments", user.uid), {
+    //     id: tweet.user.uid,
+    //     name: tweet.user.name,
+    //   });
+    // }
   };
   return (
     <div className="border border-gray-300 p-2">
