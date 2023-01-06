@@ -86,6 +86,7 @@ export default function Tweet({ tweet }) {
     }
   };
   const commentPost = async (e) => {
+    console.log(commented)
     if (commented) {
       await deleteDoc(doc(db, "tweets", tweet.id, "comments", user.uid));
     } else {
