@@ -13,6 +13,7 @@
     "@emoji-mart/react": "^1.1.1",
     "@headlessui/react": "^1.7.7",
     "@heroicons/react": "^2.0.13",
+    "@reduxjs/toolkit": "^1.9.1",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.3",
     "@tailwindcss/typography": "^0.5.8",
@@ -21,6 +22,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-firebase-hooks": "^5.1.1",
+    "react-redux": "^8.0.5",
     "react-router-dom": "^6.6.1"
   },
   "devDependencies": {
