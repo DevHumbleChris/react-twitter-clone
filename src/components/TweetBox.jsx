@@ -2,7 +2,13 @@ import { PhotoIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import React, { useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db, storage } from "../firebaseConfig";
-import { addDoc, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
@@ -29,17 +35,17 @@ export default function TweetBox() {
       timestamp: serverTimestamp(),
     });
 
-    const imageRef = ref(storage, `tweets/${docRef.id}/images`)
+    const imageRef = ref(storage, `tweets/${docRef.id}/images`);
     if (selectedFile) {
-      await uploadString(imageRef, selectedFile, 'data_url').then(async () => {
-        const downloadURL = await getDownloadURL(imageRef)
-        await updateDoc(doc(db, 'tweets', docRef.id), {
-          image: downloadURL
-        })
-      })
+      await uploadString(imageRef, selectedFile, "data_url").then(async () => {
+        const downloadURL = await getDownloadURL(imageRef);
+        await updateDoc(doc(db, "tweets", docRef.id), {
+          image: downloadURL,
+        });
+      });
     }
     setTweet("");
-    setSelectedFile(null)
+    setSelectedFile(null);
   };
   const addEmoji = (selectedEmoji) => {
     setEmoji(selectedEmoji);
@@ -126,7 +132,7 @@ export default function TweetBox() {
             <div>
               <button
                 type="submit"
-                disabled={!tweet}
+                disabled={!tweet || selectedFile}
                 className="bg-[#1ca0f2] text-white p-3 w-full my-2 rounded-2xl"
               >
                 Tweet

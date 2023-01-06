@@ -10,7 +10,6 @@ import {
 } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -28,7 +27,6 @@ export default function Tweet({ tweet }) {
   const [liked, setLiked] = useState(false);
   const [user] = useAuthState(auth);
   const [comments, setComments] = useState([]);
-  const [commented, setCommented] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {

@@ -1,12 +1,20 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useRef, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { openModal } from "../store/slices/modalSlice";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from "../firebaseConfig";
+import { auth, db, storage } from "../firebaseConfig";
 import { PhotoIcon } from "@heroicons/react/24/outline";
-import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 export default function Modal() {
   const isOpen = useSelector((state) => state.modal.isModalOpen);
@@ -14,21 +22,37 @@ export default function Modal() {
   const dispatch = useDispatch();
   const [user] = useAuthState(auth);
   const [tweetReply, setTweetReply] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null)
+  const [selectedFile, setSelectedFile] = useState(null);
+  const filePickerRef = useRef();
 
   const commentOnPost = async (e) => {
     e.preventDefault();
-    const docRef = await addDoc(collection(db, "tweets", tweet.id, "comments"), {
-      comment: tweetReply,
-      user: {
-        uid: user.uid,
-        name: user.displayName,
-        photoURL: user.photoURL,
-      },
-      timestamp: serverTimestamp()
-    });
-    setTweetReply('')
-    console.log(docRef)
+    const docRef = await addDoc(
+      collection(db, "tweets", tweet.id, "comments"),
+      {
+        comment: tweetReply,
+        user: {
+          uid: user.uid,
+          name: user.displayName,
+          photoURL: user.photoURL,
+        },
+        timestamp: serverTimestamp(),
+      }
+    );
+    const imageRef = ref(
+      storage,
+      `tweets/${tweet.id}/comments/${docRef.id}/images`
+    );
+    if (selectedFile) {
+      await uploadString(imageRef, selectedFile, "data_url").then(async () => {
+        const downloadURL = await getDownloadURL(imageRef);
+        await updateDoc(doc(db, "tweets", tweet.id, "comments", docRef.id), {
+          image: downloadURL,
+        });
+      });
+    }
+    setTweetReply("");
+    setSelectedFile(null);
   };
   const addImageToPost = (e) => {
     const reader = new FileReader();
@@ -124,11 +148,34 @@ export default function Modal() {
                       onChange={(e) => setTweetReply(e.target.value)}
                       className="outline-none tracking-wide min-h-[80px] bg-transparent w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     ></textarea>
+                    {selectedFile && (
+                      <div className="relative my-2">
+                        <div
+                          className="w-8 h-8 left-1 cursor-pointer"
+                          onClick={() => setSelectedFile(null)}
+                        >
+                          <XMarkIcon className="text-black h-5" />
+                        </div>
+                        <img
+                          src={selectedFile}
+                          alt=""
+                          className="rounded-2xl max-h-80 object-contain mb-2"
+                        />
+                      </div>
+                    )}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <div className="flex items-center cursor-pointer">
+                        <div
+                          className="flex items-center cursor-pointer"
+                          onClick={() => filePickerRef.current.click()}
+                        >
                           <PhotoIcon className="w-8 text-[#1ca0f2]" />
-                          <input type="file" hidden />
+                          <input
+                            type="file"
+                            hidden
+                            onChange={addImageToPost}
+                            ref={filePickerRef}
+                          />
                         </div>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
