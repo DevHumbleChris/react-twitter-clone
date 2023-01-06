@@ -6,7 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import {
   HeartIcon as HeartIconFilled,
-  ChatBubbleOvalLeftIcon as ChatBubbleOvalLeftIconFilled,
+  TrashIcon,
 } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import {
@@ -121,6 +121,7 @@ export default function Tweet({ tweet }) {
           )}
           {likes.length > 0 && <p>{likes.length}</p>}
         </div>
+        {tweet.user.uid === user.uid && <TrashIcon className="text-[#f60100] w-6 cursor-pointer" />}
         <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
         <ArrowUpTrayIcon className="w-6 h-6 text-[#1ca0f2]" />
       </div>
