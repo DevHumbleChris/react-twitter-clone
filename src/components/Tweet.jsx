@@ -20,7 +20,7 @@ import {
 import { auth, db } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
-import { openModal } from "../store/slices/modalSlice";
+import { openDeleteModal, openModal } from "../store/slices/modalSlice";
 
 export default function Tweet({ tweet }) {
   const [likes, setLikes] = useState([]);
@@ -80,6 +80,10 @@ export default function Tweet({ tweet }) {
     dispatch(openModal(tweet));
   };
 
+  const deleteTweet = (tweet) => {
+    dispatch(openDeleteModal(tweet));
+  };
+
   return (
     <div className="border border-gray-300 p-2">
       <div className="flex space-x-2">
@@ -121,7 +125,9 @@ export default function Tweet({ tweet }) {
           )}
           {likes.length > 0 && <p>{likes.length}</p>}
         </div>
-        {tweet.user.uid === user.uid && <TrashIcon className="text-[#f60100] w-6 cursor-pointer" />}
+        {tweet.user.uid === user.uid && (
+          <TrashIcon className="text-[#f60100] w-6 cursor-pointer" onClick={() => deleteTweet(tweet)} />
+        )}
         <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
         <ArrowUpTrayIcon className="w-6 h-6 text-[#1ca0f2]" />
       </div>

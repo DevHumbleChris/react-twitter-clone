@@ -4,11 +4,13 @@ import { db } from "../firebaseConfig";
 import Tweet from "./Tweet";
 import Modal from "./Modal";
 import { useSelector } from "react-redux";
+import DeleteTweet from "./DeleteTweet";
 
 export default function TweetsUser() {
   const [tweets, setTweets] = useState([]);
   const [loadingTweets, setLoadingTweets] = useState(true);
   const isModalOpen = useSelector((state) => state.modal.isModalOpen);
+  const deleteModal= useSelector((state) => state.modal.deleteModal)
 
   useEffect(() => {
     const q = query(collection(db, "tweets"), orderBy("timestamp", "desc"));
@@ -44,6 +46,7 @@ export default function TweetsUser() {
           return <Tweet key={tweet.id} tweet={tweet} />;
         })}
       {isModalOpen && <Modal />}
+      {deleteModal && <DeleteTweet/>}
     </div>
   );
 }
