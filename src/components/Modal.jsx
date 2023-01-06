@@ -11,9 +11,9 @@ import {
   collection,
   doc,
   serverTimestamp,
-  setDoc,
   updateDoc,
 } from "firebase/firestore";
+import moment from "moment";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 export default function Modal() {
@@ -63,6 +63,10 @@ export default function Modal() {
       setSelectedFile(readerEvent.target.result);
     };
   };
+  const timeOfUpdate = (time) => {
+    return moment(time).startOf("hour").fromNow();
+  };
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -115,8 +119,8 @@ export default function Modal() {
                           {tweet.user.name}
                         </h4>
                         <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                        <span className="text-[10px] sm:text-sm">
-                          {tweet.timestamp}
+                        <span className="text-[10px] sm:text-base">
+                          {timeOfUpdate(tweet.timestamp.toDate())}
                         </span>
                       </div>
                       <div>
@@ -126,7 +130,7 @@ export default function Modal() {
                             <img
                               src={tweet.image}
                               alt={tweet.id}
-                              className="object-contain"
+                              className="object-contain rounded-xl"
                             />
                           </div>
                         )}

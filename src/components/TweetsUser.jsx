@@ -4,16 +4,11 @@ import { db } from "../firebaseConfig";
 import Tweet from "./Tweet";
 import Modal from "./Modal";
 import { useSelector } from "react-redux";
-import moment from "moment";
 
 export default function TweetsUser() {
   const [tweets, setTweets] = useState([]);
   const [loadingTweets, setLoadingTweets] = useState(true);
   const isModalOpen = useSelector((state) => state.modal.isModalOpen);
-
-  const timeOfUpdate = (time) => {
-    return moment(time).startOf("hour").fromNow();
-  };
 
   useEffect(() => {
     const q = query(collection(db, "tweets"), orderBy("timestamp", "desc"));
@@ -46,11 +41,7 @@ export default function TweetsUser() {
       )}
       {!loadingTweets &&
         tweets.map((tweet) => {
-          if (tweet) {
-            const fromNow = timeOfUpdate(tweet.timestamp.toDate());
-            const newTweet = { ...tweet, timestamp: fromNow };
-            return <Tweet key={tweet.id} tweet={newTweet} />;
-          }
+          return <Tweet key={tweet.id} tweet={tweet} />;
         })}
       {isModalOpen && <Modal />}
     </div>

@@ -62,22 +62,15 @@ export default function TweetBox() {
   };
   return (
     <>
-      <div className="flex space-x-2">
-        <img
-          src={user.photoURL}
-          alt="user-logo"
-          className="w-16 h-16 border border-gray-200 rounded-full"
-        />
-        <form onSubmit={handleSubmit}>
+      <div className="flex mt-4 space-x-3 w-full">
+        <img src={user.photoURL} alt="" className="h-11 w-11 rounded-full" />
+        <form onSubmit={handleSubmit} className="flex-grow">
           <textarea
-            id="about"
-            name="tweet"
-            rows="3"
-            v-model="tweet"
+            rows="2"
             value={tweet}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             onChange={(e) => setTweet(e.target.value)}
             placeholder="What's Happening?"
+            className="outline-none tracking-wide min-h-[80px] bg-transparent w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           ></textarea>
           {selectedFile && (
             <div className="relative my-2">
@@ -94,8 +87,8 @@ export default function TweetBox() {
               />
             </div>
           )}
-          <div className="my-3 sm:flex justify-between relative">
-            <div className="flex space-x-2 sm:w-[20rem]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
               <div
                 className="flex items-center cursor-pointer"
                 onClick={() => filePickerRef.current.click()}
@@ -112,32 +105,18 @@ export default function TweetBox() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 496 512"
                 fill="#1ca0f2"
-                className="w-8 cursor-pointer"
-                onClick={() => setShowEmoji(!showEmoji)}
+                className="w-6 cursor-pointer"
               >
                 <path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm80 168c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm-160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm194.8 170.2C334.3 380.4 292.5 400 248 400s-86.3-19.6-114.8-53.8c-13.6-16.3 11-36.7 24.6-20.5 22.4 26.9 55.2 42.2 90.2 42.2s67.8-15.4 90.2-42.2c13.4-16.2 38.1 4.2 24.6 20.5z" />
               </svg>
-              {showEmoji && (
-                <div className="absolute top-[3rem] -left-[6rem] sm:left-[10rem] md:left-[15rem] lg:left-[20rem] xl:left-[23rem] max-w-[320px]">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={(selectedEmoji) =>
-                      addEmoji(selectedEmoji.native)
-                    }
-                    theme="light"
-                  />
-                </div>
-              )}
             </div>
-            <div>
-              <button
-                type="submit"
-                disabled={!tweet || selectedFile}
-                className="bg-[#1ca0f2] text-white p-3 w-full my-2 rounded-2xl"
-              >
-                Tweet
-              </button>
-            </div>
+            <button
+              className="bg-[#1ca0f2] text-white p-2 my-2 rounded-2xl"
+              disabled={!tweet}
+              type="submit"
+            >
+              Tweet
+            </button>
           </div>
         </form>
       </div>

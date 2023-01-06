@@ -75,9 +75,11 @@ export default function Tweet({ tweet }) {
       });
     }
   };
+
   const commentPost = async (e) => {
     dispatch(openModal(tweet));
   };
+
   return (
     <div className="border border-gray-300 p-2">
       <div className="flex space-x-2">
@@ -94,7 +96,7 @@ export default function Tweet({ tweet }) {
               <img
                 src={tweet.image}
                 alt={tweet.id}
-                className="object-contain"
+                className="object-contain rounded-xl"
               />
             </div>
           )}
