@@ -87,7 +87,7 @@ export default function Tweet({ tweet }) {
     }
   };
   const commentPost = async (e) => {
-    dispatch(openModal({...tweet, timestamp: tweet.timestamp.toDate()}))
+    dispatch(openModal(tweet))
     // if (commented) {
     //   await deleteDoc(doc(db, "tweets", tweet.id, "comments", user.uid));
     // } else {
