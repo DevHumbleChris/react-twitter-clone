@@ -12,7 +12,7 @@ export default function TweetsUser() {
   const isModalOpen = useSelector((state) => state.modal.isModalOpen);
 
   const timeOfUpdate = (time) => {
-    return moment(time).startOf('hour').fromNow()
+    return moment(time).startOf("hour").fromNow();
   };
 
   useEffect(() => {
@@ -46,9 +46,11 @@ export default function TweetsUser() {
       )}
       {!loadingTweets &&
         tweets.map((tweet) => {
-          const fromNow = timeOfUpdate(tweet.timestamp.toDate());
-          const newTweet = {...tweet, timestamp: fromNow}
-          return <Tweet key={tweet.id} tweet={newTweet} />;
+          if (tweet) {
+            const fromNow = timeOfUpdate(tweet.timestamp.toDate());
+            const newTweet = { ...tweet, timestamp: fromNow };
+            return <Tweet key={tweet.id} tweet={newTweet} />;
+          }
         })}
       {isModalOpen && <Modal />}
     </div>

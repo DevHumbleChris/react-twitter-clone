@@ -29,7 +29,7 @@ export default function Tweet({ tweet }) {
   const [user] = useAuthState(auth);
   const [comments, setComments] = useState([]);
   const [commented, setCommented] = useState(false);
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweet.id, "likes"));
@@ -66,15 +66,6 @@ export default function Tweet({ tweet }) {
     }
   }, [likes]);
 
-  useEffect(() => {
-    const isCommented = likes.filter((comment) => comment.id === user.uid);
-    if (isCommented.length > 0) {
-      setCommented(true);
-    } else {
-      setCommented(false);
-    }
-  }, [comments]);
-
   const likePost = async (e) => {
     if (liked) {
       await deleteDoc(doc(db, "tweets", tweet.id, "likes", user.uid));
@@ -87,15 +78,7 @@ export default function Tweet({ tweet }) {
     }
   };
   const commentPost = async (e) => {
-    dispatch(openModal(tweet))
-    // if (commented) {
-    //   await deleteDoc(doc(db, "tweets", tweet.id, "comments", user.uid));
-    // } else {
-    //   await setDoc(doc(db, "tweets", tweet.id, "comments", user.uid), {
-    //     id: tweet.user.uid,
-    //     name: tweet.user.name,
-    //   });
-    // }
+    dispatch(openModal(tweet));
   };
   return (
     <div className="border border-gray-300 p-2">
@@ -124,11 +107,7 @@ export default function Tweet({ tweet }) {
           className="flex items-center space-x-1 cursor-pointer"
           onClick={(e) => commentPost(e)}
         >
-          {commented ? (
-            <ChatBubbleOvalLeftIconFilled className="w-6 h-6 text-green-600" />
-          ) : (
-            <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
-          )}
+          <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
           {comments.length > 0 && <p>{comments.length}</p>}
         </div>
         <div

@@ -1,17 +1,44 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { openModal } from "../store/slices/modalSlice";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../firebaseConfig";
+import { auth, db } from "../firebaseConfig";
 import { PhotoIcon } from "@heroicons/react/24/outline";
+import { addDoc, collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
 
 export default function Modal() {
   const isOpen = useSelector((state) => state.modal.isModalOpen);
   const tweet = useSelector((state) => state.modal.selectedTweet);
   const dispatch = useDispatch();
   const [user] = useAuthState(auth);
+  const [tweetReply, setTweetReply] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null)
+
+  const commentOnPost = async (e) => {
+    e.preventDefault();
+    const docRef = await addDoc(collection(db, "tweets", tweet.id, "comments"), {
+      comment: tweetReply,
+      user: {
+        uid: user.uid,
+        name: user.displayName,
+        photoURL: user.photoURL,
+      },
+      timestamp: serverTimestamp()
+    });
+    setTweetReply('')
+    console.log(docRef)
+  };
+  const addImageToPost = (e) => {
+    const reader = new FileReader();
+    if (e.target.files[0]) {
+      reader.readAsDataURL(e.target.files[0]);
+    }
+    reader.onload = (readerEvent) => {
+      setSelectedFile(readerEvent.target.result);
+    };
+  };
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -89,10 +116,12 @@ export default function Modal() {
                     alt=""
                     className="h-11 w-11 rounded-full"
                   />
-                  <div className="flex-grow">
+                  <form onSubmit={commentOnPost} className="flex-grow">
                     <textarea
                       placeholder="Reply tweet..."
                       rows="2"
+                      value={tweetReply}
+                      onChange={(e) => setTweetReply(e.target.value)}
                       className="outline-none tracking-wide min-h-[80px] bg-transparent w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                     ></textarea>
                     <div className="flex items-center justify-between">
@@ -112,11 +141,13 @@ export default function Modal() {
                       </div>
                       <button
                         className="bg-[#1ca0f2] text-white p-2 my-2 rounded-2xl"
+                        disabled={!tweetReply}
+                        type="submit"
                       >
                         Tweet
                       </button>
                     </div>
-                  </div>
+                  </form>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
