@@ -3,14 +3,22 @@ import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import { useDispatch, useSelector } from "react-redux";
 import { openModal } from "../store/slices/modalSlice";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../firebaseConfig";
+import { PhotoIcon } from "@heroicons/react/24/outline";
 
 export default function Modal() {
-  const isOpen = useSelector(state => state.modal.isModalOpen)
-  const tweet = useSelector(state => state.modal.selectedTweet)
-  const dispatch = useDispatch()
+  const isOpen = useSelector((state) => state.modal.isModalOpen);
+  const tweet = useSelector((state) => state.modal.selectedTweet);
+  const dispatch = useDispatch();
+  const [user] = useAuthState(auth);
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={() => dispatch(openModal())}>
+      <Dialog
+        as="div"
+        className="relative z-10"
+        onClose={() => dispatch(openModal())}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -42,9 +50,73 @@ export default function Modal() {
                 >
                   <XMarkIcon className="w-6 text-white" />
                 </Dialog.Title>
-                <div className="flex gap-x-3 relative">
-                    <span className="w-0.5 h-full z-[-1] absolute left-5 top-11 bg-gray-600"></span>
-                    <img src={tweet.user.photoURL} alt="" className="h-11 w-11 rounded-full" />
+                <div className="flex gap-x-3 relative my-2">
+                  <span className="w-0.5 h-full z-[-1] absolute left-5 top-11 bg-gray-600"></span>
+                  <img
+                    src={tweet.user.photoURL}
+                    alt=""
+                    className="h-11 w-11 rounded-full"
+                  />
+                  <div>
+                    <div className="inline-block group">
+                      <div className="flex items-center space-x-2 justify-between">
+                        <h4 className="font-bold text-[15px] sm:text-base">
+                          {tweet.user.name}
+                        </h4>
+                        <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+                        <span className="text-[10px] sm:text-sm">
+                          {tweet.timestamp}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-gray-600 my-2">{tweet.tweet}</p>
+                        {tweet.image && (
+                          <div className="my-2">
+                            <img
+                              src={tweet.image}
+                              alt={tweet.id}
+                              className="object-contain"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex mt-4 space-x-3 w-full">
+                  <img
+                    src={user.photoURL}
+                    alt=""
+                    className="h-11 w-11 rounded-full"
+                  />
+                  <div className="flex-grow">
+                    <textarea
+                      placeholder="Reply tweet..."
+                      rows="2"
+                      className="outline-none tracking-wide min-h-[80px] bg-transparent w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    ></textarea>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center cursor-pointer">
+                          <PhotoIcon className="w-8 text-[#1ca0f2]" />
+                          <input type="file" hidden />
+                        </div>
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 496 512"
+                          fill="#1ca0f2"
+                          className="w-6 cursor-pointer"
+                        >
+                          <path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm80 168c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm-160 0c17.7 0 32 14.3 32 32s-14.3 32-32 32-32-14.3-32-32 14.3-32 32-32zm194.8 170.2C334.3 380.4 292.5 400 248 400s-86.3-19.6-114.8-53.8c-13.6-16.3 11-36.7 24.6-20.5 22.4 26.9 55.2 42.2 90.2 42.2s67.8-15.4 90.2-42.2c13.4-16.2 38.1 4.2 24.6 20.5z" />
+                        </svg>
+                      </div>
+                      <button
+                        className="bg-[#1ca0f2] text-white p-2 my-2 rounded-2xl"
+                      >
+                        Tweet
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </Dialog.Panel>
             </Transition.Child>
