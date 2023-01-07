@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import HomeTweets from "../components/HomeTweets";
 import Feeds from "../components/Feeds";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { auth } from "../firebaseConfig";
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
     <main className="flex">
       {/* grid grid-cols-6 sm:grid-cols-8 gap-2 space-x-2 */}
       <Sidebar />
-      <HomeTweets />
+      <Outlet />
       <Feeds />
     </main>
   );

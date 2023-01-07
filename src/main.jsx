@@ -6,11 +6,23 @@ import Home from "./views/Home";
 import Login from "./views/Login";
 import { Provider } from "react-redux";
 import { store } from "./store";
+import TweetPost from "./views/TweetPost";
+import HomeTweets from "./components/HomeTweets";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
+    children: [
+      {
+        path: "/tweet/:tweetID",
+        element: <TweetPost />,
+      },
+      {
+        path: "/home",
+        element: <HomeTweets />,
+      },
+    ],
   },
   {
     path: "/login",

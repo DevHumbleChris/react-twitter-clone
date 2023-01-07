@@ -10,7 +10,7 @@ export default function Login() {
     const unsub = onAuthStateChanged(auth, (result) => {
       if (result) {
         localStorage.setItem("authenticated", "true");
-        navigate("/");
+        navigate("/home");
       }
     });
 
