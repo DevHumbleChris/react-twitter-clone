@@ -9,7 +9,7 @@ export default function Sidebar() {
     signOut(auth);
   };
   return (
-    <aside className="col-span-1 sm:col-span-2 border border-gray-200">
+    <aside className="sticky top-0 h-screen w-18  col-span-1 sm:col-span-2 border border-gray-200">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 512 512"
