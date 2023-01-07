@@ -3,7 +3,7 @@ import React from 'react'
 
 export default function Feeds() {
   return (
-    <section className="hidden sm:block sm:col-span-2 p-2 border border-gray-200">
+    <section className="sticky top-0 h-screen hidden sm:w-[600px] sm:block sm:col-span-2 p-2 border border-gray-200">
         <div className="flex space-x-2 items-center bg-[#eff3f4] rounded-2xl p-3 my-2">
             <MagnifyingGlassIcon className="w-9 h-9 text-gray-600" />
             <input type="text" className="w-full rounded-md border-0 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-[#eff3f4]" placeholder="Search Twitter" />

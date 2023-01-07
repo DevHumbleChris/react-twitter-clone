@@ -26,7 +26,7 @@ export default function Home() {
 
   if (!authenticated) return <Navigate to="/login" replace />;
   return (
-    <main className="flex sm:grid grid-cols-6 sm:grid-cols-8 gap-2 space-x-2">
+    <main className="flex">
       {/* grid grid-cols-6 sm:grid-cols-8 gap-2 space-x-2 */}
       <Sidebar />
       <HomeTweets />
