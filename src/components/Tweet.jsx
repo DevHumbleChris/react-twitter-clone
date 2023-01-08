@@ -21,6 +21,7 @@ import { auth, db } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { openDeleteModal, openModal } from "../store/slices/modalSlice";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Tweet({ tweet }) {
   const [likes, setLikes] = useState([]);
@@ -28,6 +29,12 @@ export default function Tweet({ tweet }) {
   const [user] = useAuthState(auth);
   const [comments, setComments] = useState([]);
   const dispatch = useDispatch();
+  const [tagName, setTagName] = useState('')
+
+  useEffect(() => {
+    const newTagName = tweet.user.name.split(' ').join('-').toLowerCase()
+    setTagName(newTagName)
+  }, [tweet])
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweet.id, "likes"));
@@ -86,26 +93,28 @@ export default function Tweet({ tweet }) {
 
   return (
     <div className="border border-gray-300 p-2">
-      <div className="flex space-x-2">
-        <img
-          src={tweet.user.photoURL}
-          alt="user-logo"
-          className="w-16 h-16 border border-gray-200 rounded-full"
-        />
-        <div>
-          <h1>{tweet.user.name}</h1>
-          <p className="text-gray-600 my-2">{tweet.tweet}</p>
-          {tweet.image && (
-            <div className="my-2">
-              <img
-                src={tweet.image}
-                alt={tweet.id}
-                className="object-contain rounded-xl"
-              />
-            </div>
-          )}
+      <Link to={`/tweet/@${tagName}/${tweet.id}`}>
+        <div className="flex space-x-2">
+          <img
+            src={tweet.user.photoURL}
+            alt="user-logo"
+            className="w-16 h-16 border border-gray-200 rounded-full"
+          />
+          <div>
+            <h1>{tweet.user.name}</h1>
+            <p className="text-gray-600 my-2">{tweet.tweet}</p>
+            {tweet.image && (
+              <div className="my-2">
+                <img
+                  src={tweet.image}
+                  alt={tweet.id}
+                  className="object-contain rounded-xl"
+                />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      </Link>
       <div className="flex justify-evenly m-2">
         <div
           className="flex items-center space-x-1 cursor-pointer"
@@ -126,7 +135,10 @@ export default function Tweet({ tweet }) {
           {likes.length > 0 && <p>{likes.length}</p>}
         </div>
         {tweet.user.uid === user.uid && (
-          <TrashIcon className="text-[#f60100] w-6 cursor-pointer" onClick={() => deleteTweet(tweet)} />
+          <TrashIcon
+            className="text-[#f60100] w-6 cursor-pointer"
+            onClick={() => deleteTweet(tweet)}
+          />
         )}
         <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
         <ArrowUpTrayIcon className="w-6 h-6 text-[#1ca0f2]" />

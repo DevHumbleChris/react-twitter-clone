@@ -15,7 +15,7 @@ const router = createBrowserRouter([
     element: <Home />,
     children: [
       {
-        path: "/tweet/:tweetID",
+        path: "/tweet/:tagName/:tweetID",
         element: <TweetPost />,
       },
       {
