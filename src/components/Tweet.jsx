@@ -24,6 +24,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { openDeleteModal, openModal } from "../store/slices/modalSlice";
 import { Link, useNavigate } from "react-router-dom";
+import { addTweetPostData } from "../store/slices/tweetPostSlice";
 
 export default function Tweet({ tweet }) {
   const [likes, setLikes] = useState([]);
@@ -45,9 +46,9 @@ export default function Tweet({ tweet }) {
     const unsub = onSnapshot(q, (querySnapshot) => {
       let retweetsNew = [];
       querySnapshot.forEach((doc) => {
-        retweetsNew.push({...doc.data(), id: doc.id });
+        retweetsNew.push({ ...doc.data(), id: doc.id });
       });
-      setRetweets(retweetsNew)
+      setRetweets(retweetsNew);
     });
     return () => unsub();
   }, []);
@@ -89,7 +90,6 @@ export default function Tweet({ tweet }) {
 
   useEffect(() => {
     const isRetweet = retweets.filter((retweet) => retweet.id === user.uid);
-    console.log(isRetweet);
     if (isRetweet.length > 0) {
       setIsRetweeted(true);
     } else {
@@ -127,9 +127,16 @@ export default function Tweet({ tweet }) {
     dispatch(openDeleteModal(tweet));
   };
 
+  const tweetPostData = (tweet, comments, retweets, likes) => {
+    dispatch(addTweetPostData({tweet, comments, retweets, likes}));
+  };
+
   return (
     <div className="border border-gray-300 p-2">
-      <Link to={`/tweet/@${tagName}/${tweet.id}`}>
+      <Link
+        to={`/tweet/@${tagName}/${tweet.id}`}
+        onClick={() => tweetPostData(tweet, comments, retweets, likes)}
+      >
         <div className="flex space-x-2">
           <img
             src={tweet.user.photoURL}
@@ -176,16 +183,14 @@ export default function Tweet({ tweet }) {
             onClick={() => deleteTweet(tweet)}
           />
         )}
-        <div className="flex items-center space-x-1 cursor-pointer"onClick={(e) => retweetPost(e)} >
+        <div
+          className="flex items-center space-x-1 cursor-pointer"
+          onClick={(e) => retweetPost(e)}
+        >
           {isRetweeted ? (
-            <ArrowsUpDownIconFilled
-              className="w-6 h-6 text-green-700"
-
-            />
+            <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
           ) : (
-            <ArrowsUpDownIcon
-              className="w-6 h-6 text-[#1ca0f2]"
-            />
+            <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
           )}
           {retweets.length > 0 && <p>{retweets.length}</p>}
         </div>

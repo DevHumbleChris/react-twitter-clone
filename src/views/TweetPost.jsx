@@ -15,18 +15,43 @@ import { useAuthState } from "react-firebase-hooks/auth";
 export default function TweetPost() {
   const { tagName, tweetID } = useParams();
   const [tweet, setTweet] = useState([]);
+  const [comments, setComments] = useState([])
+  const [likes, setLikes] = useState([])
+  const [retweets, setRetweets] = useState([])
   const [user] = useAuthState(auth);
 
   useEffect(() => {
-    const q = query(collection(db, 'tweets'), orderBy('timestamp', 'desc'))
+    const q = query(collection(db, 'tweets', tweetID, 'comments'))
     const unsub = onSnapshot(q, (querySnapshot) => {
-      let tweets = []
+      let theComments = []
       querySnapshot.forEach(doc => {
-        tweets.push({ ...doc.data(), id: doc.id})
+        theComments.push({ ...doc.data(), id: doc.id})
       })
-      const theTweet = tweets.find(letweet => letweet.id === tweetID)
-      setTweet(theTweet)
-      console.log(tweet)
+      setComments(theComments)
+    })
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'tweets', tweetID, 'likes'))
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      let theLikes = []
+      querySnapshot.forEach(doc => {
+        theLikes.push({ ...doc.data(), id: doc.id})
+      })
+      setLikes(theLikes)
+    })
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'tweets', tweetID, 'retweets'))
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      let theRetweets = []
+      querySnapshot.forEach(doc => {
+        theRetweets.push({ ...doc.data(), id: doc.id})
+      })
+      setRetweets(theRetweets)
     })
     return () => unsub();
   }, []);
@@ -38,7 +63,7 @@ export default function TweetPost() {
         </Link>
         <h1>Tweet</h1>
       </div>
-      <div className="p-3">
+      {/* <div className="p-3">
         <div className="flex gap-x-3 relative my-2">
           <span className="w-0.5 h-full z-[-1] absolute left-5 top-11 bg-gray-600"></span>
           <img src={tweet.user.photoURL} alt="" className="h-11 w-11 rounded-full" />
@@ -69,7 +94,7 @@ export default function TweetPost() {
         <div className="flex mt-4 space-x-3 w-full">
           <img src={user.photoURL} alt="" className="h-11 w-11 rounded-full" />
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }
