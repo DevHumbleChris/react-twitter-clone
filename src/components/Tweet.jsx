@@ -174,10 +174,10 @@ export default function Tweet({ tweet }) {
             onClick={() => deleteTweet(tweet)}
           />
         )}
-        {retweeted ? (
-          <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
+        {isRetweeted ? (
+          <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2] cursor-pointer" onClick={(e) => retweetPost(e)} />
         ): (
-          <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
+          <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700 cursor-pointer" onClick={(e) => retweetPost(e)} />
         )}
         <ArrowUpTrayIcon className="w-6 h-6 text-[#1ca0f2]" />
       </div>
