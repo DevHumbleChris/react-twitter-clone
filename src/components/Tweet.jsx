@@ -6,6 +6,7 @@ import {
 } from "@heroicons/react/24/outline";
 import {
   HeartIcon as HeartIconFilled,
+  ArrowsUpDownIcon as ArrowsUpDownIconFilled,
   TrashIcon,
 } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
@@ -30,11 +31,25 @@ export default function Tweet({ tweet }) {
   const [comments, setComments] = useState([]);
   const dispatch = useDispatch();
   const [tagName, setTagName] = useState('')
+  const [isRetweeted, setIsRetweeted] = useState(false)
+  const [retweets, setRetweets] = useState([])
 
   useEffect(() => {
     const newTagName = tweet.user.name.split(' ').join('-').toLowerCase()
     setTagName(newTagName)
   }, [tweet])
+
+  useEffect(() => {
+    const q = query(collection(db, 'tweets', tweet.id, 'retweets'))
+    const unsub = onSnapshot(q, querySnapshot => {
+      let newRetweets = []
+      querySnapshot.forEach(doc => {
+        newRetweets.push({ ...doc.data(), id: doc.id})
+      })
+    })
+    setRetweets(newRetweets)
+    return () => unsub()
+  }, [])
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweet.id, "likes"));
@@ -71,17 +86,36 @@ export default function Tweet({ tweet }) {
     }
   }, [likes]);
 
+  useEffect(() => {
+    const isRetweet = retweets.filter(retweet => retweet.id === user.id)
+    if (isRetweet.length > 0) {
+      setIsRetweeted(true)
+    } else {
+      setIsRetweeted(false)
+    }
+  }, [retweets])
+
   const likePost = async (e) => {
     if (liked) {
       await deleteDoc(doc(db, "tweets", tweet.id, "likes", user.uid));
     } else {
-      console.log("am here");
       await setDoc(doc(db, "tweets", tweet.id, "likes", user.uid), {
         id: tweet.user.uid,
         name: tweet.user.name,
       });
     }
   };
+
+  const retweetPost = async (e) => {
+    if (isRetweeted) {
+      await deleteDoc(doc(db, 'tweets', tweet.id, 'retweets', user.id))
+    } else {
+      await setDoc(doc(db, "tweets", tweet.id, "retweets", user.uid), {
+        id: tweet.user.uid,
+        name: tweet.user.name,
+      });
+    }
+  }
 
   const commentPost = async (e) => {
     dispatch(openModal(tweet));
@@ -140,7 +174,11 @@ export default function Tweet({ tweet }) {
             onClick={() => deleteTweet(tweet)}
           />
         )}
-        <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
+        {retweeted ? (
+          <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
+        ): (
+          <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
+        )}
         <ArrowUpTrayIcon className="w-6 h-6 text-[#1ca0f2]" />
       </div>
     </div>
