@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -30,26 +31,26 @@ export default function Tweet({ tweet }) {
   const [user] = useAuthState(auth);
   const [comments, setComments] = useState([]);
   const dispatch = useDispatch();
-  const [tagName, setTagName] = useState('')
-  const [isRetweeted, setIsRetweeted] = useState(false)
-  const [retweets, setRetweets] = useState([])
+  const [tagName, setTagName] = useState("");
+  const [isRetweeted, setIsRetweeted] = useState(false);
+  const [retweets, setRetweets] = useState([]);
 
   useEffect(() => {
-    const newTagName = tweet.user.name.split(' ').join('-').toLowerCase()
-    setTagName(newTagName)
-  }, [tweet])
+    const newTagName = tweet.user.name.split(" ").join("-").toLowerCase();
+    setTagName(newTagName);
+  }, [tweet]);
 
   useEffect(() => {
-    const q = query(collection(db, 'tweets', tweet.id, 'retweets'))
-    const unsub = onSnapshot(q, querySnapshot => {
-      let newRetweets = []
-      querySnapshot.forEach(doc => {
-        newRetweets.push({ ...doc.data(), id: doc.id})
-      })
-    })
-    setRetweets(newRetweets)
-    return () => unsub()
-  }, [])
+    const q = query(collection(db, "tweets", tweet.id, "retweets"));
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      let retweetsNew = [];
+      querySnapshot.forEach((doc) => {
+        retweetsNew.push({...doc.data(), id: doc.id });
+      });
+      setRetweets(retweetsNew)
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweet.id, "likes"));
@@ -87,13 +88,14 @@ export default function Tweet({ tweet }) {
   }, [likes]);
 
   useEffect(() => {
-    const isRetweet = retweets.filter(retweet => retweet.id === user.id)
+    const isRetweet = retweets.filter((retweet) => retweet.id === user.uid);
+    console.log(isRetweet);
     if (isRetweet.length > 0) {
-      setIsRetweeted(true)
+      setIsRetweeted(true);
     } else {
-      setIsRetweeted(false)
+      setIsRetweeted(false);
     }
-  }, [retweets])
+  }, [retweets]);
 
   const likePost = async (e) => {
     if (liked) {
@@ -108,14 +110,14 @@ export default function Tweet({ tweet }) {
 
   const retweetPost = async (e) => {
     if (isRetweeted) {
-      await deleteDoc(doc(db, 'tweets', tweet.id, 'retweets', user.id))
+      await deleteDoc(doc(db, "tweets", tweet.id, "retweets", user.uid));
     } else {
       await setDoc(doc(db, "tweets", tweet.id, "retweets", user.uid), {
         id: tweet.user.uid,
         name: tweet.user.name,
       });
     }
-  }
+  };
 
   const commentPost = async (e) => {
     dispatch(openModal(tweet));
@@ -174,12 +176,19 @@ export default function Tweet({ tweet }) {
             onClick={() => deleteTweet(tweet)}
           />
         )}
-        {isRetweeted ? (
-          <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2] cursor-pointer" onClick={(e) => retweetPost(e)} />
-        ): (
-          <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700 cursor-pointer" onClick={(e) => retweetPost(e)} />
-        )}
-        <ArrowUpTrayIcon className="w-6 h-6 text-[#1ca0f2]" />
+        <div className="flex items-center space-x-1 cursor-pointer"onClick={(e) => retweetPost(e)} >
+          {isRetweeted ? (
+            <ArrowsUpDownIconFilled
+              className="w-6 h-6 text-green-700"
+
+            />
+          ) : (
+            <ArrowsUpDownIcon
+              className="w-6 h-6 text-[#1ca0f2]"
+            />
+          )}
+          {retweets.length > 0 && <p>{retweets.length}</p>}
+        </div>
       </div>
     </div>
   );

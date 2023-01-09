@@ -24,9 +24,6 @@ export default function TweetBox() {
     e.preventDefault();
     const docRef = await addDoc(collection(db, "tweets"), {
       tweet: tweet,
-      likes: [],
-      comments: [],
-      retweets: [],
       user: {
         uid: user.uid,
         name: user.displayName,
