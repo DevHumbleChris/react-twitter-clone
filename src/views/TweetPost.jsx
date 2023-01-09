@@ -17,18 +17,19 @@ export default function TweetPost() {
   const [tweet, setTweet] = useState([]);
   const [user] = useAuthState(auth);
 
-  const getTweet = async () => {
-    const docRef = doc(db, "tweets", tweetID);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      setTweet({ ...docSnap.data(), id: docSnap.id });
-      console.log(tweet, user);
-    }
-  };
   useEffect(() => {
-    getTweet();
-    return () => {};
-  }, [tweetID]);
+    const q = query(collection(db, 'tweets'), orderBy('timestamp', 'desc'))
+    const unsub = onSnapshot(q, (querySnapshot) => {
+      let tweets = []
+      querySnapshot.forEach(doc => {
+        tweets.push({ ...doc.data(), id: doc.id})
+      })
+      const theTweet = tweets.find(letweet => letweet.id === tweetID)
+      setTweet(theTweet)
+      console.log(tweet)
+    })
+    return () => unsub();
+  }, []);
   return (
     <section className="w-full scrollbar-hide overflow-scroll col-span-5 sm:col-span-4 p-2">
       <div className="sticky top-0 p-2 flex space-x-2 items-center text-lg">
@@ -40,7 +41,7 @@ export default function TweetPost() {
       <div className="p-3">
         <div className="flex gap-x-3 relative my-2">
           <span className="w-0.5 h-full z-[-1] absolute left-5 top-11 bg-gray-600"></span>
-          <img src="" alt="" className="h-11 w-11 rounded-full" />
+          <img src={tweet.user.photoURL} alt="" className="h-11 w-11 rounded-full" />
           <div>
             <div className="inline-block group">
               <div className="flex items-center space-x-2 justify-between">
