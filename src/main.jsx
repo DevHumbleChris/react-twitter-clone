@@ -8,20 +8,20 @@ import { Provider } from "react-redux";
 import { store } from "./store";
 import TweetPost from "./views/TweetPost";
 import HomeTweets from "./components/HomeTweets";
-import Error404 from "./views/Error404";
+import ErrorPage from "./views/ErrorPage";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Home />,
-    errorElement: <Error404 />,
+    errorElement: <ErrorPage />,
     children: [
       {
-        path: "/tweet/:tagName/:tweetID",
+        path: "tweet/:tagName/:tweetID",
         element: <TweetPost />,
       },
       {
-        path: "/home",
+        path: "home",
         element: <HomeTweets />,
       },
     ],
@@ -29,8 +29,12 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <Login />,
-    errorElement: <Error404 />
+    errorElement: <ErrorPage />
   },
+  {
+    path: "*",
+    element: <ErrorPage />
+  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(

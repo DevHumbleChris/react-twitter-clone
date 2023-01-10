@@ -1,9 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export default function Error404() {
+export default function ErrorPage() {
   return (
-    <div className="bg-gray-100 h-screen justify-center">
+    <div className="h-screen justify-center">
       <center className="mt-24 m-auto">
         <svg
           className="emoji-404 "
@@ -14,7 +14,6 @@ export default function Error404() {
           viewBox="0 0 226 249.135"
           width={226}
           xmlSpace="preserve"
-          {...props}
         >
           <circle cx={113} cy={113} fill="#FFE585" r={109} />
           <line
