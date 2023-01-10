@@ -14,7 +14,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 
 export default function TweetPost() {
   const { tagName, tweetID } = useParams();
-  const [tweet, setTweet] = useState([]);
+  const [tweet, setTweet] = useState(null);
   const [comments, setComments] = useState([])
   const [likes, setLikes] = useState([])
   const [retweets, setRetweets] = useState([])
@@ -56,8 +56,15 @@ export default function TweetPost() {
     return () => unsub();
   }, []);
 
-  useEffect(() => {
+  const getTweet = async () => {
+    const docSnap = await getDoc(doc(db, 'tweets', tweetID))
+    if (docSnap.exists()) {
+      setTweet({...docSnap.data(), id: docSnap.id})
+    }
+  }
 
+  useEffect(() => {
+    getTweet()
   }, [tweetID])
   return (
     <section className="w-full scrollbar-hide overflow-scroll col-span-5 sm:col-span-4 p-2">
