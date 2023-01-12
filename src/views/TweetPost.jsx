@@ -100,63 +100,65 @@ export default function TweetPost() {
               alt=""
               className="h-11 w-11 rounded-full"
             />
-            <div>
-              <div className="inline-block group">
-                <div className="flex items-center space-x-2 justify-between">
-                  <h4 className="font-bold text-[15px] sm:text-base">
-                    {tweet?.user.name}
-                  </h4>
-                  <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                  <span className="text-[10px] sm:text-base">heelo</span>
-                </div>
-                <div>
-                  <p className="text-gray-600 my-2">{tweet?.tweet}</p>
-                  {tweet?.image && (
-                    <div className="my-2">
-                      <img
-                        src={tweet?.image}
-                        alt={tweet?.id}
-                        className="object-contain rounded-xl"
-                      />
-                    </div>
-                  )}
-                </div>
-                <div className="flex justify-evenly m-2">
-                  <div
-                    className="flex items-center space-x-1 cursor-pointer"
-                    onClick={(e) => commentPost(e)}
-                  >
-                    <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
-                    {comments.length > 0 && <p>{comments.length}</p>}
+            <div className="inline-block w-full">
+              <div>
+                <div className="inline-block group w-full">
+                  <div className="flex items-center space-x-2 justify-between">
+                    <h4 className="font-bold text-[15px] sm:text-base">
+                      {tweet?.user.name}
+                    </h4>
+                    <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
+                    <span className="text-[10px] sm:text-base">heelo</span>
                   </div>
-                  <div
-                    className="flex items-center space-x-1 cursor-pointer"
-                    onClick={(e) => likePost(e)}
-                  >
-                    {liked ? (
-                      <HeartIconFilled className="text-[#f60100] w-6" />
-                    ) : (
-                      <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
+                  <div>
+                    <p className="text-gray-600 my-2">{tweet?.tweet}</p>
+                    {tweet?.image && (
+                      <div className="my-2">
+                        <img
+                          src={tweet?.image}
+                          alt={tweet?.id}
+                          className="object-contain rounded-xl"
+                        />
+                      </div>
                     )}
-                    {likes.length > 0 && <p>{likes.length}</p>}
                   </div>
-                  {tweet?.user.uid === user.uid && (
-                    <TrashIcon
-                      className="text-[#f60100] w-6 cursor-pointer"
-                      onClick={() => deleteTweet(tweet)}
-                    />
+                </div>
+              </div>
+              <div className="flex my-2 justify-between w-full">
+                <div
+                  className="flex items-center space-x-1 cursor-pointer"
+                  onClick={(e) => commentPost(e)}
+                >
+                  <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
+                  {comments.length > 0 && <p>{comments.length}</p>}
+                </div>
+                <div
+                  className="flex items-center space-x-1 cursor-pointer"
+                  onClick={(e) => likePost(e)}
+                >
+                  {liked ? (
+                    <HeartIconFilled className="text-[#f60100] w-6" />
+                  ) : (
+                    <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
                   )}
-                  <div
-                    className="flex items-center space-x-1 cursor-pointer"
-                    onClick={(e) => retweetPost(e)}
-                  >
-                    {isRetweeted ? (
-                      <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
-                    ) : (
-                      <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
-                    )}
-                    {retweets.length > 0 && <p>{retweets.length}</p>}
-                  </div>
+                  {likes.length > 0 && <p>{likes.length}</p>}
+                </div>
+                {tweet?.user.uid === user.uid && (
+                  <TrashIcon
+                    className="text-[#f60100] w-6 cursor-pointer"
+                    onClick={() => deleteTweet(tweet)}
+                  />
+                )}
+                <div
+                  className="flex items-center space-x-1 cursor-pointer"
+                  onClick={(e) => retweetPost(e)}
+                >
+                  {isRetweeted ? (
+                    <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
+                  ) : (
+                    <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
+                  )}
+                  {retweets.length > 0 && <p>{retweets.length}</p>}
                 </div>
               </div>
             </div>
