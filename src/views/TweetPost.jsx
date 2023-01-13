@@ -175,66 +175,26 @@ export default function TweetPost() {
                 </div>
               </div>
             </div>
-            <div>
-              <div className="flex gap-x-3 relative my-2">
-                <span className="w-0.5 h-full z-[-1] absolute left-5 top-11 bg-gray-600"></span>
-                <img
-                  src={tweet?.user.photoURL}
-                  alt=""
-                  className="h-11 w-11 rounded-full"
-                />
-                <div className="inline-block w-full">
+            <div className="relative">
+              {comments.map(comment => (
+                <div key={comment.id} className="flex space-x-2 my-4">
+                  <img
+                    src={comment?.user?.photoURL}
+                    alt=""
+                    className="h-11 w-11 rounded-full"
+                  />
                   <div>
-                    <div className="inline-block group w-full">
-                      <div className="flex items-center space-x-2 justify-between">
-                        <h4 className="font-bold text-[15px] sm:text-base">
-                          {tweet?.user.name}
-                        </h4>
-                        <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
-                        <span className="text-[10px] sm:text-base">heelo</span>
-                      </div>
-                      <div></div>
+                  <div className="font-bold text-[15px] sm:text-base">
+                      {comment?.user.name}
                     </div>
-                  </div>
-                  <div className="flex my-2 justify-between w-full">
-                    <div
-                      className="flex items-center space-x-1 cursor-pointer"
-                      onClick={(e) => commentPost(e)}
-                    >
-                      <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
-                      {comments.length > 0 && <p>{comments.length}</p>}
-                    </div>
-                    <div
-                      className="flex items-center space-x-1 cursor-pointer"
-                      onClick={(e) => likePost(e)}
-                    >
-                      {liked ? (
-                        <HeartIconFilled className="text-[#f60100] w-6" />
-                      ) : (
-                        <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
-                      )}
-                      {likes.length > 0 && <p>{likes.length}</p>}
-                    </div>
-                    {tweet?.user.uid === user.uid && (
-                      <TrashIcon
-                        className="text-[#f60100] w-6 cursor-pointer"
-                        onClick={() => deleteTweet(tweet)}
-                      />
-                    )}
-                    <div
-                      className="flex items-center space-x-1 cursor-pointer"
-                      onClick={(e) => retweetPost(e)}
-                    >
-                      {isRetweeted ? (
-                        <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
-                      ) : (
-                        <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
-                      )}
-                      {retweets.length > 0 && <p>{retweets.length}</p>}
-                    </div>
+                    <h5 className="text-[15px] sm:text-base">
+                      Replying to @
+                      <span className="text-[#1ca0f2]">{tweet?.user.name}</span>
+                    </h5>
+                    <p className="text-gray-600 my-2">{comment?.comment}</p>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </>
