@@ -9,8 +9,6 @@ import {
   serverTimestamp,
   updateDoc,
 } from "firebase/firestore";
-import data from "@emoji-mart/data";
-import Picker from "@emoji-mart/react";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 
 export default function TweetBox() {
