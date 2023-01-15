@@ -21,6 +21,8 @@ import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { auth, db } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
+import { useDispatch } from "react-redux";
+import { openModal } from "../store/slices/modalSlice";
 
 export default function TweetPost() {
   const { tagName, tweetID } = useParams();
@@ -30,8 +32,8 @@ export default function TweetPost() {
   const [liked, setLiked] = useState(false);
   const [retweets, setRetweets] = useState([]);
   const [isRetweeted, setIsReTweeted] = useState(false);
-  const [tweetLoading, setTweetLoading] = useState(true);
   const [user] = useAuthState(auth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const q = query(collection(db, "tweets", tweetID, "comments"));
@@ -83,6 +85,10 @@ export default function TweetPost() {
     });
     return () => unsub();
   }, [tweetID]);
+
+  const commentOnTweet = (tweet) => {
+    dispatch(openModal(tweet));
+  };
   return (
     <section className="w-full scrollbar-hide overflow-scroll col-span-5 sm:col-span-4">
       <div className="sticky top-0 p-2 flex space-x-2 items-center text-lg">
@@ -94,86 +100,87 @@ export default function TweetPost() {
       {tweet ? (
         <>
           <div className="border-b border-gray-300">
-          <div className="p-3">
-            <div>
-              <div className="flex space-x-2">
-                <img
-                  src={tweet?.user?.photoURL}
-                  alt=""
-                  className="h-11 w-11 rounded-full"
-                />
-                <div>
-                  <h4 className="font-bold text-[15px] sm:text-base">
-                    {tweet?.user.name}
-                  </h4>
-                  <h5 className="text-[15px] sm:text-base">
-                    @<span className="text-[#1ca0f2]">{tweet?.user.name}</span>
-                  </h5>
-                </div>
-              </div>
-              <p className="text-gray-600 my-2">{tweet?.tweet}</p>
-              {tweet?.image && (
-                <div className="my-2">
+            <div className="p-3">
+              <div>
+                <div className="flex space-x-2">
                   <img
-                    src={tweet?.image}
-                    alt={tweet?.id}
-                    className="object-contain rounded-xl"
+                    src={tweet?.user?.photoURL}
+                    alt=""
+                    className="h-11 w-11 rounded-full"
                   />
+                  <div>
+                    <h4 className="font-bold text-[15px] sm:text-base">
+                      {tweet?.user.name}
+                    </h4>
+                    <h5 className="text-[15px] sm:text-base">
+                      @
+                      <span className="text-[#1ca0f2]">{tweet?.user.name}</span>
+                    </h5>
+                  </div>
                 </div>
-              )}
-            </div>
-            <div className="text-[15px] my-2 sm:text-base flex items-center justify-between">
-              <div className="flex space-x-2">
-                <p>{comments.length}</p>
-                <p>Comments</p>
-              </div>
-              <div className="flex space-x-2">
-                <p>{likes.length}</p>
-                <p>Likes</p>
-              </div>
-              <div className="flex space-x-2">
-                <p>{retweets.length}</p>
-                <p>Retweets</p>
-              </div>
-            </div>
-            <div className="flex my-3 justify-between w-full">
-              <div
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={(e) => commentPost(e)}
-              >
-                <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
-                {comments.length > 0 && <p>{comments.length}</p>}
-              </div>
-              <div
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={(e) => likePost(e)}
-              >
-                {liked ? (
-                  <HeartIconFilled className="text-[#f60100] w-6" />
-                ) : (
-                  <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
+                <p className="text-gray-600 my-2">{tweet?.tweet}</p>
+                {tweet?.image && (
+                  <div className="my-2">
+                    <img
+                      src={tweet?.image}
+                      alt={tweet?.id}
+                      className="object-contain rounded-xl"
+                    />
+                  </div>
                 )}
-                {likes.length > 0 && <p>{likes.length}</p>}
               </div>
-              {tweet?.user.uid === user.uid && (
-                <TrashIcon
-                  className="text-[#f60100] w-6 cursor-pointer"
-                  onClick={() => deleteTweet(tweet)}
-                />
-              )}
-              <div
-                className="flex items-center space-x-1 cursor-pointer"
-                onClick={(e) => retweetPost(e)}
-              >
-                {isRetweeted ? (
-                  <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
-                ) : (
-                  <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
+              <div className="text-[15px] my-2 sm:text-base flex items-center justify-between">
+                <div className="flex space-x-2">
+                  <p>{comments.length}</p>
+                  <p>Comments</p>
+                </div>
+                <div className="flex space-x-2">
+                  <p>{likes.length}</p>
+                  <p>Likes</p>
+                </div>
+                <div className="flex space-x-2">
+                  <p>{retweets.length}</p>
+                  <p>Retweets</p>
+                </div>
+              </div>
+              <div className="flex my-3 justify-between w-full">
+                <div
+                  className="flex items-center space-x-1 cursor-pointer"
+                  onClick={(e) => commentPost(e)}
+                >
+                  <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
+                  {comments.length > 0 && <p>{comments.length}</p>}
+                </div>
+                <div
+                  className="flex items-center space-x-1 cursor-pointer"
+                  onClick={(e) => likePost(e)}
+                >
+                  {liked ? (
+                    <HeartIconFilled className="text-[#f60100] w-6" />
+                  ) : (
+                    <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
+                  )}
+                  {likes.length > 0 && <p>{likes.length}</p>}
+                </div>
+                {tweet?.user.uid === user.uid && (
+                  <TrashIcon
+                    className="text-[#f60100] w-6 cursor-pointer"
+                    onClick={() => deleteTweet(tweet)}
+                  />
                 )}
-                {retweets.length > 0 && <p>{retweets.length}</p>}
+                <div
+                  className="flex items-center space-x-1 cursor-pointer"
+                  onClick={(e) => retweetPost(e)}
+                >
+                  {isRetweeted ? (
+                    <ArrowsUpDownIconFilled className="w-6 h-6 text-green-700" />
+                  ) : (
+                    <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
+                  )}
+                  {retweets.length > 0 && <p>{retweets.length}</p>}
+                </div>
               </div>
             </div>
-          </div>
           </div>
           <div className="p-3">
             <div className="relative">

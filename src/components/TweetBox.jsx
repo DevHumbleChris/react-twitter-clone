@@ -58,7 +58,7 @@ export default function TweetBox() {
   return (
     //
     <>
-      <div className="flex mt-4 space-x-3 w-full">
+      <div className="flex mt-4 space-x-3 w-full p-2">
         <img src={user.photoURL} alt="" className="h-11 w-11 rounded-full" />
         <form onSubmit={handleSubmit} className="flex-grow">
           <textarea
