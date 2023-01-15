@@ -4,28 +4,34 @@ import {
   ChevronLeftIcon,
   HeartIcon,
   TrashIcon,
+  PhotoIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
   ArrowsUpDownIcon as ArrowsUpDownIconFilled,
   HeartIcon as HeartIconFilled,
 } from "@heroicons/react/20/solid";
 import {
+  addDoc,
   collection,
   deleteDoc,
   doc,
   onSnapshot,
   orderBy,
   query,
+  serverTimestamp,
   setDoc,
+  updateDoc,
 } from "firebase/firestore";
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { auth, db } from "../firebaseConfig";
+import React, { useEffect, useRef, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { auth, db, storage } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch, useSelector } from "react-redux";
 import { openDeleteModal, openModal } from "../store/slices/modalSlice";
-import Modal from "../components/Modal";
 import moment from "moment";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import DeleteTweet from "../components/DeleteTweet";
 
 export default function TweetPost() {
   const { tagName, tweetID } = useParams();
@@ -37,8 +43,10 @@ export default function TweetPost() {
   const [isRetweeted, setIsRetweeted] = useState(false);
   const [user] = useAuthState(auth);
   const dispatch = useDispatch();
-  const isModalOpen = useSelector((state) => state.modal.isModalOpen);
   const deleteModal = useSelector((state) => state.modal.deleteModal);
+  const [tweetReply, setTweetReply] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const filePickerRef = useRef();
 
   useEffect(() => {
     const isLiked = likes.filter((like) => like.id === user.uid);
@@ -59,7 +67,10 @@ export default function TweetPost() {
   }, [retweets]);
 
   useEffect(() => {
-    const q = query(collection(db, "tweets", tweetID, "comments"), orderBy("timestamp", "desc"));
+    const q = query(
+      collection(db, "tweets", tweetID, "comments"),
+      orderBy("timestamp", "desc")
+    );
     const unsub = onSnapshot(q, (querySnapshot) => {
       let theComments = [];
       querySnapshot.forEach((doc) => {
@@ -105,14 +116,6 @@ export default function TweetPost() {
     return moment(time).startOf("hour").fromNow();
   };
 
-  const commentPost = async () => {
-    dispatch(openModal(tweet));
-  };
-
-  const deleteTweet = (tweet) => {
-    dispatch(openDeleteModal(tweet));
-  };
-
   const likePost = async (e) => {
     if (liked) {
       await deleteDoc(doc(db, "tweets", tweet.id, "likes", user.uid));
@@ -134,6 +137,49 @@ export default function TweetPost() {
       });
     }
   };
+
+  const commentOnPost = async (e) => {
+    e.preventDefault();
+    const docRef = await addDoc(
+      collection(db, "tweets", tweet.id, "comments"),
+      {
+        comment: tweetReply,
+        user: {
+          uid: user.uid,
+          name: user.displayName,
+          photoURL: user.photoURL,
+        },
+        timestamp: serverTimestamp(),
+      }
+    );
+    const imageRef = ref(
+      storage,
+      `tweets/${tweet.id}/comments/${docRef.id}/images`
+    );
+    if (selectedFile) {
+      await uploadString(imageRef, selectedFile, "data_url").then(async () => {
+        const downloadURL = await getDownloadURL(imageRef);
+        await updateDoc(doc(db, "tweets", tweet.id, "comments", docRef.id), {
+          image: downloadURL,
+        });
+      });
+      setTweetReply("");
+      setSelectedFile(null);
+    }
+    setTweetReply("");
+    setSelectedFile(null);
+  };
+
+  const addImageToPost = (e) => {
+    const reader = new FileReader();
+    if (e.target.files[0]) {
+      reader.readAsDataURL(e.target.files[0]);
+    }
+    reader.onload = (readerEvent) => {
+      setSelectedFile(readerEvent.target.result);
+    };
+  };
+
   return (
     <section className="w-full scrollbar-hide overflow-scroll col-span-5 sm:col-span-4">
       <div className="sticky top-0 p-2 flex space-x-2 items-center text-lg">
@@ -144,7 +190,6 @@ export default function TweetPost() {
       </div>
       {tweet ? (
         <>
-          {isModalOpen && <Modal />}
           {deleteModal && <DeleteTweet />}
           <div className="border-b border-gray-300">
             <div className="p-3">
@@ -161,7 +206,7 @@ export default function TweetPost() {
                         {tweet?.user.name}
                       </h4>
                       <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <div>{timeOfUpdate(tweet?.timestamp.toDate())}</div>
+                      <div>{timeOfUpdate(tweet?.timestamp?.toDate())}</div>
                     </div>
                     <h5 className="text-[15px] sm:text-base">
                       <span className="text-[#1ca0f2]">{tagName}</span>
@@ -194,10 +239,7 @@ export default function TweetPost() {
                 </div>
               </div>
               <div className="flex my-3 justify-between w-full">
-                <div
-                  className="flex items-center space-x-1 cursor-pointer"
-                  onClick={(e) => commentPost(e)}
-                >
+                <div className="flex items-center space-x-1">
                   <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
                 </div>
                 <div
@@ -210,12 +252,6 @@ export default function TweetPost() {
                     <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
                   )}
                 </div>
-                {tweet?.user.uid === user.uid && (
-                  <TrashIcon
-                    className="text-[#f60100] w-6 cursor-pointer"
-                    onClick={() => deleteTweet(tweet)}
-                  />
-                )}
                 <div
                   className="flex items-center space-x-1 cursor-pointer"
                   onClick={(e) => retweetPost(e)}
@@ -227,6 +263,62 @@ export default function TweetPost() {
                   )}
                 </div>
               </div>
+            </div>
+          </div>
+          <div className="border-b border-gray-300">
+            <div className="flex mt-4 space-x-3 w-full">
+              <img
+                src={user?.photoURL}
+                alt=""
+                className="h-11 w-11 rounded-full"
+              />
+              <form onSubmit={commentOnPost} className="flex-grow">
+                <textarea
+                  placeholder={`Replying to ${tagName}`}
+                  rows="2"
+                  value={tweetReply}
+                  onChange={(e) => setTweetReply(e.target.value)}
+                  className="outline-none tracking-wide min-h-[80px] bg-transparent w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                ></textarea>
+                {selectedFile && (
+                  <div className="relative my-2">
+                    <div
+                      className="w-8 h-8 left-1 cursor-pointer"
+                      onClick={() => setSelectedFile(null)}
+                    >
+                      <XMarkIcon className="text-black h-5" />
+                    </div>
+                    <img
+                      src={selectedFile}
+                      alt=""
+                      className="rounded-2xl max-h-80 object-contain mb-2"
+                    />
+                  </div>
+                )}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <div
+                      className="flex items-center cursor-pointer"
+                      onClick={() => filePickerRef.current.click()}
+                    >
+                      <PhotoIcon className="w-8 text-[#1ca0f2]" />
+                      <input
+                        type="file"
+                        hidden
+                        onChange={addImageToPost}
+                        ref={filePickerRef}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    className="bg-[#1ca0f2] text-white p-2 my-2 rounded-2xl"
+                    disabled={!tweetReply}
+                    type="submit"
+                  >
+                    Tweet
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
           <div className="p-3">
@@ -242,16 +334,16 @@ export default function TweetPost() {
                     className="h-11 w-11 rounded-full"
                   />
                   <div>
-                  <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2">
                       <h4 className="font-bold text-[15px] sm:text-base">
                         {comment?.user.name}
                       </h4>
                       <div className="w-2 h-2 rounded-full bg-gray-400"></div>
-                      <div>{timeOfUpdate(comment?.timestamp.toDate())}</div>
+                      <div>{timeOfUpdate(comment?.timestamp?.toDate())}</div>
                     </div>
                     <h5 className="text-[15px] sm:text-base">
-                      Replying to @
-                      <span className="text-[#1ca0f2]">{tweet?.user.name}</span>
+                      Replying to
+                      <span className="text-[#1ca0f2] mx-2">{tagName}</span>
                     </h5>
                     <p className="text-gray-600 my-2">{comment?.comment}</p>
                     {comment?.image && (

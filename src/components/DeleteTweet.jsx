@@ -5,12 +5,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { openDeleteModal } from "../store/slices/modalSlice";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../firebaseConfig";
+import { useNavigate } from "react-router-dom";
 
 export default function DeleteTweet() {
   const deleteModal = useSelector((state) => state.modal.deleteModal);
   const tweet = useSelector((state) => state.modal.tweetToBeDeleted);
   const dispatch = useDispatch();
   const cancelButtonRef = useRef(null);
+
   const deleteTweet = async () => {
     await deleteDoc(doc(db, "tweets", tweet.id));
     dispatch(openDeleteModal());

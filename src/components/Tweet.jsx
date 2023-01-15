@@ -80,7 +80,7 @@ export default function Tweet({ tweet }) {
   }, []);
 
   useEffect(() => {
-    const timeStamp = tweet.timestamp.toDate()
+    const timeStamp = tweet?.timestamp?.toDate()
     const tweetPostTime = moment(timeStamp).startOf("hour").fromNow()
     setTime(tweetPostTime)
   }, [tweet])
@@ -133,19 +133,14 @@ export default function Tweet({ tweet }) {
     dispatch(openDeleteModal(tweet));
   };
 
-  const tweetPostData = (tweet, comments, retweets, likes) => {
-    dispatch(addTweetPostData({ tweet, comments, retweets, likes }));
-  };
-
   return (
     <div className="border border-gray-300 p-2">
       <Link
         to={`/tweet/@${tagName}/${tweet.id}`}
-        onClick={() => tweetPostData(tweet, comments, retweets, likes)}
       >
         <div className="flex space-x-2">
           <img
-            src={tweet.user.photoURL}
+            src={tweet?.user?.photoURL}
             alt="user-logo"
             className="w-16 h-16 border border-gray-200 rounded-full"
           />
@@ -162,12 +157,12 @@ export default function Tweet({ tweet }) {
                 @<span className="text-[#1ca0f2]">{tagName}</span>
               </h5>
             </div>
-            <p className="text-gray-600 my-2">{tweet.tweet}</p>
-            {tweet.image && (
+            <p className="text-gray-600 my-2">{tweet?.tweet}</p>
+            {tweet?.image && (
               <div className="my-2">
                 <img
-                  src={tweet.image}
-                  alt={tweet.id}
+                  src={tweet?.image}
+                  alt={tweet?.id}
                   className="object-contain rounded-xl"
                 />
               </div>

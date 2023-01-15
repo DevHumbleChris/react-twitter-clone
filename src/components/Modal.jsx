@@ -25,7 +25,6 @@ export default function Modal() {
   const [tweetReply, setTweetReply] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const filePickerRef = useRef();
-  const navigate = useNavigate()
 
   const commentOnPost = async (e) => {
     e.preventDefault();
@@ -55,7 +54,6 @@ export default function Modal() {
     }
     setTweetReply("");
     setSelectedFile(null);
-    navigate(`/tweet/@${tweet.user.name}/${tweet.id}`)
     dispatch(openModal())
   };
   const addImageToPost = (e) => {
@@ -112,7 +110,7 @@ export default function Modal() {
                 <div className="flex gap-x-3 relative my-2">
                   <span className="w-0.5 h-full z-[-1] absolute left-5 top-11 bg-gray-600"></span>
                   <img
-                    src={tweet.user.photoURL}
+                    src={tweet?.user?.photoURL}
                     alt=""
                     className="h-11 w-11 rounded-full"
                   />
@@ -120,20 +118,20 @@ export default function Modal() {
                     <div className="inline-block group">
                       <div className="flex items-center space-x-2 justify-between">
                         <h4 className="font-bold text-[15px] sm:text-base">
-                          {tweet.user.name}
+                          {tweet?.user.name}
                         </h4>
                         <div className="w-2 h-2 bg-gray-600 rounded-full"></div>
                         <span className="text-[10px] sm:text-base">
-                          {timeOfUpdate(tweet.timestamp.toDate())}
+                          {timeOfUpdate(tweet?.timestamp?.toDate())}
                         </span>
                       </div>
                       <div>
-                        <p className="text-gray-600 my-2">{tweet.tweet}</p>
+                        <p className="text-gray-600 my-2">{tweet?.tweet}</p>
                         {tweet.image && (
                           <div className="my-2">
                             <img
-                              src={tweet.image}
-                              alt={tweet.id}
+                              src={tweet?.image}
+                              alt={tweet?.id}
                               className="object-contain rounded-xl"
                             />
                           </div>
@@ -144,7 +142,7 @@ export default function Modal() {
                 </div>
                 <div className="flex mt-4 space-x-3 w-full">
                   <img
-                    src={user.photoURL}
+                    src={user?.photoURL}
                     alt=""
                     className="h-11 w-11 rounded-full"
                   />
