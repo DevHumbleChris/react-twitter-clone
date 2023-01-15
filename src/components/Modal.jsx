@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import moment from "moment";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { useNavigate } from "react-router-dom";
 
 export default function Modal() {
   const isOpen = useSelector((state) => state.modal.isModalOpen);
@@ -24,6 +25,7 @@ export default function Modal() {
   const [tweetReply, setTweetReply] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const filePickerRef = useRef();
+  const navigate = useNavigate()
 
   const commentOnPost = async (e) => {
     e.preventDefault();
@@ -53,6 +55,8 @@ export default function Modal() {
     }
     setTweetReply("");
     setSelectedFile(null);
+    navigate(`/tweet/@${tweet.user.name}/${tweet.id}`)
+    dispatch(openModal())
   };
   const addImageToPost = (e) => {
     const reader = new FileReader();
