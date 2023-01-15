@@ -11,18 +11,21 @@ import {
 } from "@heroicons/react/20/solid";
 import {
   collection,
+  deleteDoc,
   doc,
-  getDoc,
   onSnapshot,
   orderBy,
   query,
+  setDoc,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { auth, db } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
-import { useDispatch } from "react-redux";
-import { openModal } from "../store/slices/modalSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { openDeleteModal, openModal } from "../store/slices/modalSlice";
+import Modal from "../components/Modal";
+import moment from "moment";
 
 export default function TweetPost() {
   const { tagName, tweetID } = useParams();
@@ -31,12 +34,32 @@ export default function TweetPost() {
   const [likes, setLikes] = useState([]);
   const [liked, setLiked] = useState(false);
   const [retweets, setRetweets] = useState([]);
-  const [isRetweeted, setIsReTweeted] = useState(false);
+  const [isRetweeted, setIsRetweeted] = useState(false);
   const [user] = useAuthState(auth);
   const dispatch = useDispatch();
+  const isModalOpen = useSelector((state) => state.modal.isModalOpen);
+  const deleteModal = useSelector((state) => state.modal.deleteModal);
 
   useEffect(() => {
-    const q = query(collection(db, "tweets", tweetID, "comments"));
+    const isLiked = likes.filter((like) => like.id === user.uid);
+    if (isLiked.length > 0) {
+      setLiked(true);
+    } else {
+      setLiked(false);
+    }
+  }, [likes]);
+
+  useEffect(() => {
+    const isRetweet = retweets.filter((retweet) => retweet.id === user.uid);
+    if (isRetweet.length > 0) {
+      setIsRetweeted(true);
+    } else {
+      setIsRetweeted(false);
+    }
+  }, [retweets]);
+
+  useEffect(() => {
+    const q = query(collection(db, "tweets", tweetID, "comments"), orderBy("timestamp", "desc"));
     const unsub = onSnapshot(q, (querySnapshot) => {
       let theComments = [];
       querySnapshot.forEach((doc) => {
@@ -71,14 +94,6 @@ export default function TweetPost() {
     return () => unsub();
   }, [tweetID]);
 
-  const getTweet = async () => {
-    const docSnap = await getDoc(doc(db, "tweets", tweetID));
-    if (docSnap.exists()) {
-      setTweet({ ...docSnap.data(), id: docSnap.id });
-    }
-    console.log(tweet);
-  };
-
   useEffect(() => {
     const unsub = onSnapshot(doc(db, "tweets", tweetID), (doc) => {
       setTweet({ ...doc.data(), id: doc.id });
@@ -86,8 +101,38 @@ export default function TweetPost() {
     return () => unsub();
   }, [tweetID]);
 
-  const commentOnTweet = (tweet) => {
+  const timeOfUpdate = (time) => {
+    return moment(time).startOf("hour").fromNow();
+  };
+
+  const commentPost = async () => {
     dispatch(openModal(tweet));
+  };
+
+  const deleteTweet = (tweet) => {
+    dispatch(openDeleteModal(tweet));
+  };
+
+  const likePost = async (e) => {
+    if (liked) {
+      await deleteDoc(doc(db, "tweets", tweet.id, "likes", user.uid));
+    } else {
+      await setDoc(doc(db, "tweets", tweet.id, "likes", user.uid), {
+        id: tweet.user.uid,
+        name: tweet.user.name,
+      });
+    }
+  };
+
+  const retweetPost = async (e) => {
+    if (isRetweeted) {
+      await deleteDoc(doc(db, "tweets", tweet.id, "retweets", user.uid));
+    } else {
+      await setDoc(doc(db, "tweets", tweet.id, "retweets", user.uid), {
+        id: tweet.user.uid,
+        name: tweet.user.name,
+      });
+    }
   };
   return (
     <section className="w-full scrollbar-hide overflow-scroll col-span-5 sm:col-span-4">
@@ -99,6 +144,8 @@ export default function TweetPost() {
       </div>
       {tweet ? (
         <>
+          {isModalOpen && <Modal />}
+          {deleteModal && <DeleteTweet />}
           <div className="border-b border-gray-300">
             <div className="p-3">
               <div>
@@ -109,12 +156,15 @@ export default function TweetPost() {
                     className="h-11 w-11 rounded-full"
                   />
                   <div>
-                    <h4 className="font-bold text-[15px] sm:text-base">
-                      {tweet?.user.name}
-                    </h4>
+                    <div className="flex items-center space-x-2">
+                      <h4 className="font-bold text-[15px] sm:text-base">
+                        {tweet?.user.name}
+                      </h4>
+                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                      <div>{timeOfUpdate(tweet?.timestamp.toDate())}</div>
+                    </div>
                     <h5 className="text-[15px] sm:text-base">
-                      @
-                      <span className="text-[#1ca0f2]">{tweet?.user.name}</span>
+                      <span className="text-[#1ca0f2]">{tagName}</span>
                     </h5>
                   </div>
                 </div>
@@ -149,7 +199,6 @@ export default function TweetPost() {
                   onClick={(e) => commentPost(e)}
                 >
                   <ChatBubbleOvalLeftIcon className="w-6 h-6 text-[#1ca0f2]" />
-                  {comments.length > 0 && <p>{comments.length}</p>}
                 </div>
                 <div
                   className="flex items-center space-x-1 cursor-pointer"
@@ -160,7 +209,6 @@ export default function TweetPost() {
                   ) : (
                     <HeartIcon className="w-6 h-6 text-[#1ca0f2]" />
                   )}
-                  {likes.length > 0 && <p>{likes.length}</p>}
                 </div>
                 {tweet?.user.uid === user.uid && (
                   <TrashIcon
@@ -177,7 +225,6 @@ export default function TweetPost() {
                   ) : (
                     <ArrowsUpDownIcon className="w-6 h-6 text-[#1ca0f2]" />
                   )}
-                  {retweets.length > 0 && <p>{retweets.length}</p>}
                 </div>
               </div>
             </div>
@@ -185,15 +232,22 @@ export default function TweetPost() {
           <div className="p-3">
             <div className="relative">
               {comments.map((comment) => (
-                <div key={comment.id} className="flex space-x-2 my-4">
+                <div
+                  key={comment.id}
+                  className="flex space-x-2 my-4 border-b border-gray-300"
+                >
                   <img
                     src={comment?.user?.photoURL}
                     alt=""
                     className="h-11 w-11 rounded-full"
                   />
                   <div>
-                    <div className="font-bold text-[15px] sm:text-base">
-                      {comment?.user.name}
+                  <div className="flex items-center space-x-2">
+                      <h4 className="font-bold text-[15px] sm:text-base">
+                        {comment?.user.name}
+                      </h4>
+                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                      <div>{timeOfUpdate(comment?.timestamp.toDate())}</div>
                     </div>
                     <h5 className="text-[15px] sm:text-base">
                       Replying to @

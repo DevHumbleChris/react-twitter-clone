@@ -1,7 +1,6 @@
 import {
   ChatBubbleOvalLeftIcon,
   HeartIcon,
-  ArrowUpTrayIcon,
   ArrowsUpDownIcon,
 } from "@heroicons/react/24/outline";
 import {
@@ -11,7 +10,6 @@ import {
 } from "@heroicons/react/20/solid";
 import React, { useEffect, useState } from "react";
 import {
-  addDoc,
   collection,
   deleteDoc,
   doc,
@@ -23,8 +21,9 @@ import { auth, db } from "../firebaseConfig";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useDispatch } from "react-redux";
 import { openDeleteModal, openModal } from "../store/slices/modalSlice";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { addTweetPostData } from "../store/slices/tweetPostSlice";
+import moment from "moment";
 
 export default function Tweet({ tweet }) {
   const [likes, setLikes] = useState([]);
@@ -35,6 +34,7 @@ export default function Tweet({ tweet }) {
   const [tagName, setTagName] = useState("");
   const [isRetweeted, setIsRetweeted] = useState(false);
   const [retweets, setRetweets] = useState([]);
+  const [time, setTime] = useState('')
 
   useEffect(() => {
     const newTagName = tweet.user.name.split(" ").join("-").toLowerCase();
@@ -78,6 +78,12 @@ export default function Tweet({ tweet }) {
 
     return () => unsub();
   }, []);
+
+  useEffect(() => {
+    const timeStamp = tweet.timestamp.toDate()
+    const tweetPostTime = moment(timeStamp).startOf("hour").fromNow()
+    setTime(tweetPostTime)
+  }, [tweet])
 
   useEffect(() => {
     const isLiked = likes.filter((like) => like.id === user.uid);
@@ -128,7 +134,7 @@ export default function Tweet({ tweet }) {
   };
 
   const tweetPostData = (tweet, comments, retweets, likes) => {
-    dispatch(addTweetPostData({tweet, comments, retweets, likes}));
+    dispatch(addTweetPostData({ tweet, comments, retweets, likes }));
   };
 
   return (
@@ -144,7 +150,18 @@ export default function Tweet({ tweet }) {
             className="w-16 h-16 border border-gray-200 rounded-full"
           />
           <div>
-            <h1>{tweet.user.name}</h1>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h4 className="font-bold text-[15px] sm:text-base">
+                  {tweet?.user.name}
+                </h4>
+                <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                <div>{ time }</div>
+              </div>
+              <h5 className="text-[15px] sm:text-base">
+                @<span className="text-[#1ca0f2]">{tagName}</span>
+              </h5>
+            </div>
             <p className="text-gray-600 my-2">{tweet.tweet}</p>
             {tweet.image && (
               <div className="my-2">
