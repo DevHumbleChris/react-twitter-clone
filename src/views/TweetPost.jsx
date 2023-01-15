@@ -265,7 +265,7 @@ export default function TweetPost() {
               </div>
             </div>
           </div>
-          <div className="border-b border-gray-300">
+          <div className="border-b border-gray-300 p-2">
             <div className="flex mt-4 space-x-3 w-full">
               <img
                 src={user?.photoURL}
