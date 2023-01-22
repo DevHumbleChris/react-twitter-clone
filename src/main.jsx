@@ -12,16 +12,15 @@ import ErrorPage from "./views/ErrorPage";
 
 const router = createBrowserRouter([
   {
-    path: "/",
     element: <Home />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "tweet/:tagName/:tweetID",
+        path: "/tweet/:tagName/:tweetID",
         element: <TweetPost />,
       },
       {
-        path: "home",
+        path: "/home",
         element: <HomeTweets />,
       },
     ],
