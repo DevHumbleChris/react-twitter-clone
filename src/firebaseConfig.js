@@ -5,12 +5,12 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAGgDjnazoRCnrqw3AtMipDa-6MwGNzIJU",
-  authDomain: "vue-twitter-d87a1.firebaseapp.com",
-  projectId: "vue-twitter-d87a1",
-  storageBucket: "vue-twitter-d87a1.appspot.com",
-  messagingSenderId: "106415468661",
-  appId: "1:106415468661:web:3a9e92b85d0c31dfe9c83c",
+  apiKey: import.meta.env.VITE_APP_API_KEY,
+  authDomain: import.meta.env.VITE_APP_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_APP_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_APP_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_APP_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_APP_ID,
 };
 
 export const firebaseApp = initializeApp(firebaseConfig);
